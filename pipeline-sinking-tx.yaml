@@ -1,0 +1,50 @@
+input:
+  label: ""
+  kafka_franz:
+    seed_brokers: [ "redpanda-0.redpanda.redpanda.svc.cluster.local.:9093" ] 
+    topics: [transactions] 
+    consumer_group: "transactions-cg"
+    client_id: rpcn-transactions-consume
+    auto_replay_nacks: true
+    commit_period: 2s
+    start_from_oldest: false
+    regexp_topics: false
+    tls:
+      enabled: true
+      skip_cert_verify: true
+      enable_renegotiation: true
+    sasl:
+      - mechanism: SCRAM-SHA-256
+        username: chris # changeme 
+        password: superpass # changeme 
+output:
+  label: ""
+  mongodb:
+    url: "mongodb+srv://cluster0.asdf.mongodb.net/" # changeme 
+    database: "larsentest" # changeme 
+    username: "chris" # changeme 
+    password: "superpass" # changeme 
+    app_name: demo
+    collection: "transactions" 
+    operation: insert-one
+    write_concern:
+      w: majority
+      j: true
+      w_timeout: ""
+    document_map: |-
+      root.email = this.email
+      root.index = this.index
+      root.price = this.price
+      root.product_url = this.product_url
+      root.timestamp = this.timestamp
+      root.user_id = this.user_id
+    filter_map: ""
+    hint_map: ""
+    upsert: false
+    max_in_flight: 64
+    batching:
+        count: 0
+        byte_size: 0
+        period: ""
+        check: ""
+        processors: [] # No default (optional)

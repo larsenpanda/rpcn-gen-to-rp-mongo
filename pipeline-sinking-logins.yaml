@@ -1,0 +1,49 @@
+#config:
+input:
+  label: ""
+  kafka_franz:
+    seed_brokers: [ "redpanda-0.redpanda.redpanda.svc.cluster.local.:9093" ] 
+    topics: [logins] 
+    consumer_group: "logins-cg" 
+    client_id: rpcn-logins-consume
+    auto_replay_nacks: true
+    commit_period: 2s
+    start_from_oldest: false
+    regexp_topics: false
+    tls:
+      enabled: true
+      skip_cert_verify: true
+      enable_renegotiation: true
+    sasl:
+      - mechanism: SCRAM-SHA-256
+        username: chris # changeme 
+        password: superpass # changeme 
+output:
+  label: ""
+  mongodb:
+    url: "mongodb+srv://cluster0.asdf.mongodb.net/" # changeme 
+    database: "larsentest" # changeme 
+    username: "chris" # changeme 
+    password: "superpass" # changeme 
+    app_name: larsendemo
+    collection: "logins" 
+    operation: insert-one
+    write_concern:
+      w: majority
+      j: true
+      w_timeout: ""
+    document_map: |-
+      root.email = this.email
+      root.login_time = this.login_time
+      root.name = this.name
+      root.user_id = this.user_id
+    filter_map: ""
+    hint_map: ""
+    upsert: false
+    max_in_flight: 64
+    batching:
+      count: 0
+      byte_size: 0
+      period: ""
+      check: ""
+      processors: [] 

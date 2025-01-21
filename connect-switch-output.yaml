@@ -1,0 +1,72 @@
+config:
+  input:
+    label: ""
+    kafka_franz:
+      seed_brokers: [ "redpanda-0.redpanda.redpanda.svc.cluster.local.:9093" ] # No default (required)
+      topics: ["logins", "transactions"] # No default (required)
+      regexp_topics: false
+      consumer_group: "logins-cg" # No default (optional)
+      client_id: rpcn-logins-consume
+      auto_replay_nacks: true
+      commit_period: 2s
+      start_from_oldest: true
+      regexp_topics: false
+      tls:
+        enabled: true
+        skip_cert_verify: true
+        enable_renegotiation: true
+      sasl:
+        - mechanism: SCRAM-SHA-256
+          username: chris # changeme
+          password: superpass # changeme
+  output:
+    switch:
+      cases:
+	    - check: @kafka_topic == "logins"
+		  output:
+            mongodb:
+              url: "mongodb+srv://larsentest.sn88e.mongodb.net/"  # changeme - No default (required)
+              database: "larsentest"  # changeme - No default (required)
+              username: "chris" # changeme 
+              password: "superpass" # changeme 
+              app_name: demo
+              collection: "logins" # No default (required)
+              operation: insert-one
+              write_concern:
+                w: majority
+                j: true
+                w_timeout: ""
+              document_map: |-
+                root.email = this.email
+                root.login_time = this.login_time
+                root.name = this.name
+                root.user_id = this.user_id
+              filter_map: ""
+              hint_map: ""
+              upsert: false
+              max_in_flight: 64
+	    - check: @kafka_topic == "transactions"
+		  output:
+            mongodb:
+              url: "mongodb+srv://larsentest.asdf.mongodb.net/" # changeme - No default (required)
+              database: "larsentest" # changeme - No default (required)
+              username: "chris" # changeme 
+              password: "superpass" # changeme 
+              app_name: demo
+              collection: "transactions" # No default (required)
+              operation: insert-one
+              write_concern:
+                w: majority
+                j: true
+                w_timeout: ""
+              document_map: |-
+                      root.email = this.email
+                      root.index = this.index
+                      root.price = this.price
+                      root.product_url = this.product_url
+                      root.timestamp = this.timestamp
+                      root.user_id = this.user_id
+              filter_map: ""
+              hint_map: ""
+              upsert: false
+              max_in_flight: 64
