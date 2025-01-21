@@ -1,4 +1,4 @@
-# rpcn-gen-to-rp-mongo
+# Redpanda Connect - Generate to Redpanda and Sink to MongoDB Atlas
 This is an example working demo in EKS to show and play around with generating data to Repdanda and sending from 2 different Mongo Atlas collections
 
 ### Pre-req's
